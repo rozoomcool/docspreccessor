@@ -16,6 +16,37 @@ MODEL_NAME = "qwen3:8b"
 # Session State Initialization
 # ===============================
 
+def get_default_templates() -> Dict[str, Dict[str, Any]]:
+    dd_schema = {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "category": {"type": "string"},
+                "title": {"type": "string"},
+                "severity": {"type": "string"},
+                "amount_rub": {"type": "number"},
+                "risk_type": {"type": "string"},
+            },
+            "required": ["category", "title", "severity", "risk_type"],
+        },
+    }
+
+    dd_fields = [
+        {"name": "category", "type": "string", "required": True, "description": "Тип: risk, obligation, legal_issue и т.д."},
+        {"name": "title", "type": "string", "required": True, "description": "Краткое название риска или проблемы"},
+        {"name": "severity", "type": "string", "required": True, "description": "Уровень: low, medium, high, critical"},
+        {"name": "amount_rub", "type": "number", "required": False, "description": "Финансовая экспозиция в рублях"},
+        {"name": "risk_type", "type": "string", "required": True, "description": "Тип риска: litigation, tax_risk, sla_penalty и т.д."},
+    ]
+
+    return {
+        "AI Due Diligence Lite": {
+            "schema": dd_schema,
+            "fields": dd_fields,
+        }
+    }
+
 def init_session_state() -> None:
     """Initialize all required keys in session_state."""
     if "schema_fields" not in st.session_state:
@@ -24,7 +55,7 @@ def init_session_state() -> None:
 
     if "templates" not in st.session_state:
         # name -> schema dict
-        st.session_state.templates: Dict[str, Dict[str, Any]] = {}
+        st.session_state.templates: Dict[str, Dict[str, Any]] = get_default_templates()
 
     if "processed_docs" not in st.session_state:
         # List of dicts with metadata, raw text, json_result, dataframe
